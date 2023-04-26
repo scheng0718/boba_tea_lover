@@ -5,7 +5,36 @@ const totalAmountBox = document.getElementById('total-amount')
 const button = document.getElementById('submit-button')
 const totalAmount = "--"
 
-let productData = [];
+let productData = [
+  {
+    id: "product-1",
+    imgUrl:
+      "https://images.unsplash.com/photo-1558024920-b41e1887dc32?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
+    name: "Macaron",
+    price: 11.25
+  },
+  {
+    id: "product-2",
+    imgUrl:
+      "https://images.unsplash.com/photo-1560691023-ca1f295a5173?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
+    name: "Strawberry Cup",
+    price: 8.50
+  },
+  {
+    id: "product-3",
+    imgUrl:
+      "https://images.unsplash.com/photo-1568271675068-f76a83a1e2d6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
+    name: "Signature Boba Milk Tea",
+    price: 5.75
+  },
+  {
+    id: "product-4",
+    imgUrl:
+      "https://images.unsplash.com/photo-1514517604298-cf80e0fb7f1e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
+    name: "Ice Coffee",
+    price: 4.25
+  }
+];
 let cartItems = [];
 //data driven概念: 當點擊加入購物車的時候，不需要靠DOM去找節點，而是利用所需的資料和結構，將必要資料存下來，可以避免未來改版或是畫面更動，不需要重新更動加入購物車的邏輯，提高維護性。
 /* 加入cartItems的資料
@@ -39,13 +68,13 @@ let cartItems = [];
 
 let total = 0
 // 4.GET API 菜單產品資料
-axios.get('https://ac-w3-dom-pos.firebaseio.com/products.json')
-  .then(response => {
-    productData = response.data
-    // 5.將產品資料加入菜單區塊
-    displayProduct(productData);    // since async processing for axios
-  })
-  .catch(error => console.log(error));
+// axios.get('https://ac-w3-dom-pos.firebaseio.com/products.json')
+//   .then(response => {
+//     productData = response.data
+//     // 5.將產品資料加入菜單區塊
+//     displayProduct(productData);    // since async processing for axios
+//   })
+//   .catch(error => console.log(error));
 
 function displayProduct(products) {
   products.forEach(product => menu.innerHTML += `
@@ -54,8 +83,8 @@ function displayProduct(products) {
           <img src=${product.imgUrl} class="card-img-top" alt="...">
           <div class="card-body">
             <h5 class="card-title">${product.name}</h5>
-            <p class="card-text">${product.price}</p>
-            <a id=${product.id} href="#" class="btn btn-primary">加入購物車</a>
+            <p class="card-text">$${product.price}</p>
+            <a id=${product.id} href="#" class="btn btn-primary">Add to Cart</a>
           </div>
         </div>
       </div>
@@ -86,7 +115,7 @@ function addToCart(event) {
   console.log(cartItems)
   // 畫面顯示購物車清單
   // 每一次去遍歷cartItems陣列，然後拿到當前最新的資料渲染到html畫面上
-  cart.innerHTML = cartItems.map(item => `<li class="list-group-item">${item.name} X ${item.quantity} 小計：${item.price * item.quantity}</li>`).join("")
+  cart.innerHTML = cartItems.map(item => `<li class="list-group-item">${item.name} x ${item.quantity}. Item's sub-total: $${item.price * item.quantity}</li>`).join("")
   // 計算總金額
   calculateTotal(addedItemPrice)
 }
@@ -94,25 +123,25 @@ function addToCart(event) {
 // 7.計算總金額
 function calculateTotal(amount) {
   total += amount
-  totalAmountBox.textContent = total
+  totalAmountBox.textContent = `$${total}`
 }
 // 8.送出訂單
 function submit(event) {
-  const message = cartItems.map(item => `${item.name} X ${item.quantity} 小計：${item.price * item.quantity}\n`).join("")
+  const message = cartItems.map(item => `${item.name} x ${item.quantity}. Subtotal: $${item.price * item.quantity}\n`).join("")
   // alert(`感謝購買！\n${message}\n共${total}元`)
   if (total === 0) {
-    swal("您還沒加入購物車喔！", "請繼續選購", "warning")
+    swal("Your cart is empty", "Please continue shopping", "warning")
   } else {
     swal({
-      title: "請確認品項及數量",
-      text: `${message}\n共${total}元`,
+      title: "Please confirm your order!",
+      text: `${message}\n Total Amount: $${total}`,
       icon: "warning",
       buttons: ["Cancel", "Confirm"],
       dangerMode: true,
     }).then(check => {
       if (check) {
         reset()
-        swal("您已成功送出清單", "", "success")
+        swal("Transaction Confirmed", "", "success")
       }
     })
   }
@@ -128,5 +157,6 @@ function reset() {
 }
 
 // 10. 加入事件監聽
+displayProduct(productData);
 menu.addEventListener('click', addToCart)
 button.addEventListener('click', submit)
